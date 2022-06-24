@@ -3,10 +3,10 @@ import type { NextPage } from 'next';
 const Home: NextPage = () => {
   return (
     <div className="bg-slate-400 py-20 px-10 flex flex-col space-y-5 min-h-screen">
-      <div className="bg-white p-6 rounded-3xl shadow-xl">
+      <div className="bg-white sm:bg-red-400 md:bg-teal-400 lg:bg-indigo-400 xl:bg-yellow-400 2xl:bg-pink-500 p-6 rounded-3xl shadow-xl">
         <span className="font-bold text-3xl">Select Item</span>
         <ul>
-          {[1, 2, 3, 4, 5].map((i) => (
+          {[1, 2, 3, 4, 5].map(i => (
             <div key={i} className="flex justify-between my-2">
               <span className="text-gray-500">Grey Chair</span>
               <span className="font-semibold">$19</span>
@@ -79,30 +79,39 @@ const Home: NextPage = () => {
         </div>
         <div className="flex justify-between items-center">
           <span className="font-medium text-2xl">$450</span>
-          <button className="bg-blue-500 text-center text-white rounded-lg py-2 px-8 text-xs">
-            Add to cart
-          </button>
+          <button className="bg-blue-500 text-center text-white rounded-lg py-2 px-8 text-xs">Add to cart</button>
         </div>
       </div>
       <div className="bg-white p-10 rounded-3xl shadow-xl"> </div>
-      <form className="flex flex-col space-y-2 ">
-        <input
-          type="text"
-          required
-          placeholder="Username"
-          className="border p-1 peer border-gray-400 rounded-lg"
-        />
-        <span className="hidden peer-invalid:block peer-invalid:text-red-500">
-          This input is invalid
-        </span>
-        <span className="hidden peer-valid:block peer-valid:text-teal-500">
-          Awesome Username
-        </span>
-        <span className="hidden peer-hover:block peer-valid:text-amber-500">Hello</span>
-        <input type="submit" value={'Login'} className="bg-white" />
-      </form>
     </div>
   );
 };
 
 export default Home;
+
+// device 크기에 따라
+// sm:bg-red-400 md:bg-teal-400 lg:bg-indigo-400 xl:bg-yellow-400 2xl:bg-pink-500
+
+// <form className="flex flex-col space-y-2 ">
+// <input type="text" required placeholder="Username" className="border p-1 peer border-gray-400 rounded-lg" />
+// <span className="hidden peer-invalid:block peer-invalid:text-red-500">This input is invalid</span>
+// <span className="hidden peer-valid:block peer-valid:text-teal-500">Awesome Username</span>
+// <span className="hidden peer-hover:block peer-valid:text-amber-500">Hello</span>
+// <input type="submit" value={'Login'} className="bg-white" />
+// </form>
+// <details className="select-none open:text-white open:bg-indigo-400">
+// <summary className="cursor-pointer">What is my fav. food.</summary>
+// <div>
+//   <span>김치</span>
+// </div>
+// </details>
+// <ul className="list-decimal marker:text-teal-500">
+// <li>hi</li>
+// <li>hi</li>
+// <li>hi</li>
+// </ul>
+// <input
+// type="file"
+// className="file:cursor-pointer file:hover:text-purple-400 file:hover:bg-white file:hover:border-purple-400 file:hover:border file:transition-colors file:border-0 file:rounded-xl file:px-5 file:text-white file:bg-purple-400"
+// />
+// <p className="first-letter:text-7xl">lo rem asdfasdfasdfasdfasdfasdf</p>
