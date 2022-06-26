@@ -6,12 +6,12 @@ import TextArea from '../../components/textarea';
 
 const Create: NextPage = () => {
   return (
-    <Layout canGoBack title="Go Live">
+    <Layout canGoBack title="라이브 하기">
       <form className=" space-y-4 py-10 px-4">
-        <Input required label="Name" name="name" type="text" />
-        <Input required label="Price" placeholder="0.00" name="price" type="text" kind="price" />
-        <TextArea name="description" label="Description" />
-        <Button text="Go live" />
+        <Input required label="이름" name="name" type="text" />
+        <Input required label="가격" placeholder="0.00" name="price" type="text" kind="price" />
+        <TextArea name="description" label="설명" />
+        <Button text="라이브 하기" />
       </form>
     </Layout>
   );
