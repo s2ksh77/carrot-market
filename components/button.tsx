@@ -1,4 +1,4 @@
-import { cls } from '../libs/utils';
+import { cls } from '../libs/client/utils';
 
 interface ButtonProps {
   large?: boolean;
@@ -6,7 +6,12 @@ interface ButtonProps {
   [key: string]: any;
 }
 
-export default function Button({ large = false, onClick, text, ...rest }: ButtonProps) {
+export default function Button({
+  large = false,
+  onClick,
+  text,
+  ...rest
+}: ButtonProps) {
   return (
     <button
       {...rest}

@@ -1,6 +1,6 @@
 import React from 'react';
 import Link from 'next/link';
-import { cls } from '../libs/utils';
+import { cls } from '../libs/client/utils';
 import { useRouter } from 'next/router';
 
 interface LayoutProps {
@@ -10,7 +10,12 @@ interface LayoutProps {
   children: React.ReactNode;
 }
 
-export default function Layout({ title, canGoBack, hasTabBar, children }: LayoutProps) {
+export default function Layout({
+  title,
+  canGoBack,
+  hasTabBar,
+  children,
+}: LayoutProps) {
   const router = useRouter();
   const onClick = () => {
     router.back();
@@ -27,11 +32,18 @@ export default function Layout({ title, canGoBack, hasTabBar, children }: Layout
               viewBox="0 0 24 24"
               xmlns="http://www.w3.org/2000/svg"
             >
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15 19l-7-7 7-7"></path>
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth="2"
+                d="M15 19l-7-7 7-7"
+              ></path>
             </svg>
           </button>
         ) : null}
-        {title ? <span className={cls(canGoBack ? 'mx-auto' : '', '')}>{title}</span> : null}
+        {title ? (
+          <span className={cls(canGoBack ? 'mx-auto' : '', '')}>{title}</span>
+        ) : null}
       </div>
       <div className={cls('pt-12', hasTabBar ? 'pb-24' : '')}>{children}</div>
       {hasTabBar ? (
@@ -40,7 +52,9 @@ export default function Layout({ title, canGoBack, hasTabBar, children }: Layout
             <a
               className={cls(
                 'flex flex-col items-center space-y-2 ',
-                router.pathname === '/' ? 'text-orange-500' : 'hover:text-gray-500 transition-colors',
+                router.pathname === '/'
+                  ? 'text-orange-500'
+                  : 'hover:text-gray-500 transition-colors',
               )}
             >
               <svg
@@ -64,7 +78,9 @@ export default function Layout({ title, canGoBack, hasTabBar, children }: Layout
             <a
               className={cls(
                 'flex flex-col items-center space-y-2 ',
-                router.pathname === '/community' ? 'text-orange-500' : 'hover:text-gray-500 transition-colors',
+                router.pathname === '/community'
+                  ? 'text-orange-500'
+                  : 'hover:text-gray-500 transition-colors',
               )}
             >
               <svg
@@ -88,7 +104,9 @@ export default function Layout({ title, canGoBack, hasTabBar, children }: Layout
             <a
               className={cls(
                 'flex flex-col items-center space-y-2 ',
-                router.pathname === '/chats' ? 'text-orange-500' : 'hover:text-gray-500 transition-colors',
+                router.pathname === '/chats'
+                  ? 'text-orange-500'
+                  : 'hover:text-gray-500 transition-colors',
               )}
             >
               <svg
@@ -112,7 +130,9 @@ export default function Layout({ title, canGoBack, hasTabBar, children }: Layout
             <a
               className={cls(
                 'flex flex-col items-center space-y-2 ',
-                router.pathname === '/live' ? 'text-orange-500' : 'hover:text-gray-500 transition-colors',
+                router.pathname === '/live'
+                  ? 'text-orange-500'
+                  : 'hover:text-gray-500 transition-colors',
               )}
             >
               <svg
@@ -136,7 +156,9 @@ export default function Layout({ title, canGoBack, hasTabBar, children }: Layout
             <a
               className={cls(
                 'flex flex-col items-center space-y-2 ',
-                router.pathname === '/profile' ? 'text-orange-500' : 'hover:text-gray-500 transition-colors',
+                router.pathname === '/profile'
+                  ? 'text-orange-500'
+                  : 'hover:text-gray-500 transition-colors',
               )}
             >
               <svg
