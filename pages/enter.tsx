@@ -1,10 +1,10 @@
 import type { NextPage } from 'next';
 import { useState } from 'react';
 import { useForm } from 'react-hook-form';
-import Button from '../components/button';
-import Input from '../components/input';
-import useMutation from '../libs/client/useMutation';
-import { cls } from '../libs/client/utils';
+import Button from '@componentss/button';
+import Input from '@componentss/input';
+import useMutation from '@libs/client/useMutation';
+import { cls } from '@libs/client/utils';
 
 interface EnterForm {
   email?: string;
@@ -13,7 +13,6 @@ interface EnterForm {
 
 const Enter: NextPage = () => {
   const [mutation, { loading, data, error }] = useMutation('/api/users/enter');
-  const [submitting, setSubmitting] = useState(false);
   const { register, handleSubmit, reset } = useForm<EnterForm>();
   const [method, setMethod] = useState<'email' | 'phone'>('email');
   const onEmailClick = () => {
@@ -25,8 +24,10 @@ const Enter: NextPage = () => {
     setMethod('phone');
   };
 
-  const onValid = (data: EnterForm) => {
-    mutation(data);
+  const onValid = (validForm: EnterForm) => {
+    if (loading) return;
+    mutation(validForm);
+    console.log(loading, data, error);
   };
 
   return (
@@ -81,8 +82,12 @@ const Enter: NextPage = () => {
               kind="phone"
             />
           ) : null}
-          {method === 'email' ? <Button text={'인증메일 받기'} /> : null}
-          {method === 'phone' ? <Button text={'인증문자 받기'} /> : null}
+          {method === 'email' ? (
+            <Button text={loading ? '로딩 중...' : '인증메일 받기'} />
+          ) : null}
+          {method === 'phone' ? (
+            <Button text={loading ? '로딩 중...' : '인증문자 받기'} />
+          ) : null}
         </form>
 
         <div className="mt-8">
