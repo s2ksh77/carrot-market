@@ -13,7 +13,7 @@ async function handler(
       id: req.session.user?.id,
     },
   });
-  res.json({ ok: true, ...profile });
+  res.json({ ok: true, profile });
 }
 
-export default withApiSession(withHandler('GET', handler));
+export default withApiSession(withHandler({ method: 'GET', handler }));

@@ -8,7 +8,7 @@ async function handler(
   res: NextApiResponse<ResponseType>,
 ) {
   const { token } = req.body;
-
+  console.log('token', token);
   const foundToken = await client.token.findUnique({
     where: {
       payload: token,
@@ -31,4 +31,10 @@ async function handler(
   res.json({ ok: true });
 }
 
-export default withApiSession(withHandler('POST', handler));
+export default withApiSession(
+  withHandler({
+    method: 'POST',
+    handler,
+    isPrivate: false,
+  }),
+);

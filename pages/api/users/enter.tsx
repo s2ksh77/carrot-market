@@ -3,6 +3,7 @@ import { NextApiRequest, NextApiResponse } from 'next';
 import withHandler, { ResponseType } from '@libs/server/withHandler';
 import client from '@libs/server/client';
 import smtpTransport from '@libs/server/email';
+import { withApiSession } from '@libs/server/withSession';
 
 const twilioClient = twilio(process.env.TWILIO_SID, process.env.TWILIO_TOKEN);
 
@@ -65,7 +66,13 @@ async function handler(
   return res.json({ ok: true });
 }
 
-export default withHandler('POST', handler);
+export default withApiSession(
+  withHandler({
+    method: 'POST',
+    handler,
+    isPrivate: false,
+  }),
+);
 
 // 일반적인 방법이었었지
 /** if (email) {
