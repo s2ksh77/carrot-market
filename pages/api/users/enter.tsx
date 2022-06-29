@@ -30,35 +30,35 @@ async function handler(
       },
     },
   });
-  if (phone) {
-    const message = await twilioClient.messages.create({
-      messagingServiceSid: process.env.MES_SEV_ID,
-      to: process.env.PHONE_NUMBER!,
-      body: `Your login token is ${payload}`,
-    });
-    console.log(message);
-  } else if (email) {
-    const mailOptions = {
-      from: process.env.MAIL_ID,
-      to: email,
-      subject: 'Nomad Carrot Authentication Email',
-      text: `Authentication Code : ${payload}`,
-    };
-    const message = await smtpTransport.sendMail(
-      mailOptions,
-      (error, responses) => {
-        if (error) {
-          console.log(error);
-          return null;
-        } else {
-          console.log(responses);
-          return null;
-        }
-      },
-    );
-    smtpTransport.close();
-    console.log(message);
-  }
+  // if (phone) {
+  //   const message = await twilioClient.messages.create({
+  //     messagingServiceSid: process.env.MES_SEV_ID,
+  //     to: process.env.PHONE_NUMBER!,
+  //     body: `Your login token is ${payload}`,
+  //   });
+  //   console.log(message);
+  // } else if (email) {
+  //   const mailOptions = {
+  //     from: process.env.MAIL_ID,
+  //     to: email,
+  //     subject: 'Nomad Carrot Authentication Email',
+  //     text: `Authentication Code : ${payload}`,
+  //   };
+  //   const message = await smtpTransport.sendMail(
+  //     mailOptions,
+  //     (error, responses) => {
+  //       if (error) {
+  //         console.log(error);
+  //         return null;
+  //       } else {
+  //         console.log(responses);
+  //         return null;
+  //       }
+  //     },
+  //   );
+  //   smtpTransport.close();
+  //   console.log(message);
+  // }
 
   console.log(token);
 
