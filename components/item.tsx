@@ -8,9 +8,15 @@ interface ItemProps {
   hearts: number;
 }
 
-export default function Item({ title, price, comments, hearts, id }: ItemProps) {
+export default function Item({
+  title,
+  price,
+  comments,
+  hearts,
+  id,
+}: ItemProps) {
   return (
-    <Link href={`/items/${id}`}>
+    <Link href={`/products/${id}`}>
       <a className="flex px-4 pt-5 cursor-pointer justify-between">
         <div className="flex space-x-4">
           <div className="w-20 h-20 bg-gray-400 rounded-md" />
