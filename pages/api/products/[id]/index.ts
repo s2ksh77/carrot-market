@@ -9,10 +9,8 @@ async function handler(
 ) {
   const {
     query: { id },
-    session: { user },
+    session: { user }
   } = req;
-
-  console.log(id);
 
   const product = await client.product.findUnique({
     where: {
@@ -29,9 +27,39 @@ async function handler(
     },
   });
 
+  const isLiked = Boolean(
+    await client.favorite.findFirst({
+      where:{
+        productId: product?.id,
+        userId: user?.id
+      },
+      select:{
+        id:true,
+      }
+  }))
+
+  const terms = product?.name.split(" ").map(word => ({
+    name: {
+      contains: word,
+    }
+  }));
+
+  const relatedProducts = await client.product.findMany({
+    where:{
+      OR: terms,
+      AND: {
+        id: {
+          not: product?.id,
+        }
+      }
+    }
+  })
+
   return res.json({
     ok: true,
     product,
+    isLiked,
+    relatedProducts
   });
 }
 
