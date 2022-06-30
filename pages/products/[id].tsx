@@ -2,7 +2,7 @@ import type { NextPage } from 'next';
 import Button from '@components/button';
 import Layout from '@components/layout';
 import { useRouter } from 'next/router';
-import useSWR from 'swr';
+import useSWR, { useSWRConfig } from 'swr';
 import Link from 'next/link';
 import { Product, User } from '@prisma/client';
 import useMutation from '@libs/client/useMutation';
@@ -20,7 +20,8 @@ interface ItemDetailResponse {
 
 const ItemDetail: NextPage = () => {
   const router = useRouter();
-  const { data, error } = useSWR<ItemDetailResponse>(
+  const { mutate } = useSWRConfig();
+  const { data, mutate: boundMutate } = useSWR<ItemDetailResponse>(
     router.query.id ? `/api/products/${router.query?.id}` : null,
   );
 
@@ -30,6 +31,10 @@ const ItemDetail: NextPage = () => {
 
   const onFavoriteClick = () => {
     toggleFavorite({});
+    if (!data) return;
+    boundMutate({ ...data, isLiked: !data?.isLiked }, false);
+    // mutate('/api/users/me', (prev:any) => ({ok:!prev.ok}), false); <-- another component data cache change
+    // mutate('/api/users/me') <-- just refetch
   };
 
   return (
@@ -127,3 +132,23 @@ const ItemDetail: NextPage = () => {
 };
 
 export default ItemDetail;
+
+/**
+ * Mutation
+
+useSWRConfig() hook으로부터 mutate 함수를 얻을 수 있으며, 
+mutate(key)를 호출하여 동일한 키를 사용하는 
+다른 SWR hook*에게 revalidation 메시지를 전역으로 브로드 캐스팅할 수 있습니다.
+mutate를 사용하면 로컬 데이터를 업데이트하는 동시에 유효성을 다시 검사하고 최종적으로 최신 데이터로 바꿀 수 있습니다.
+```
+const { mutate } = useSWRConfig();
+
+// 로컬 데이터를 즉시 업데이트하지만, revalidation은 비활성화
+mutate('/api/user', { ...data, name: newName }, false)
+
+// 이 키가 있는 모든 SWR에 revalidate하도록 하고,
+ 로컬 데이터가 올바른지 확인하기 위해 갱신(refetch) 트리거 ("/api/user"에 refetch를 함)
+mutate('/api/user');
+```
+https://swr.vercel.app/docs/mutation
+ */
