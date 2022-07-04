@@ -50,7 +50,7 @@ const ItemDetail: NextPage = () => {
               </p>
               <Link href={`/users/profiles/${data?.product?.user?.id}`}>
                 <a className="text-xs font-medium text-gray-500">
-                  View profile &rarr;
+                  프로필 &rarr;
                 </a>
               </Link>
             </div>

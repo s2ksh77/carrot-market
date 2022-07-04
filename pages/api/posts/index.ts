@@ -8,7 +8,7 @@ async function handler(
   res: NextApiResponse<ResponseType>,
 ) {
   const {
-    question,
+    body:{ question },
     session: { user },
   } = req;
 
@@ -17,13 +17,13 @@ async function handler(
       question,
       user: {
         connect: {
-          id: user.id,
+          id: user?.id,
         },
       },
     },
   });
 
-  res.json({ ok: true });
+  res.json({ ok: true, post });
 }
 
 export default withApiSession(

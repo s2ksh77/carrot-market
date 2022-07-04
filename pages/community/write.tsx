@@ -5,6 +5,8 @@ import TextArea from '@components/textarea';
 import { useForm } from 'react-hook-form';
 import useMutation from '@libs/client/useMutation';
 import { Post } from '@prisma/client';
+import { useEffect } from 'react';
+import { useRouter } from 'next/router';
 
 interface WriteForm {
   question: string;
@@ -16,27 +18,30 @@ interface WriteMutation {
 }
 
 const Write: NextPage = () => {
-  const { register, handleSubmit, watch } = useForm();
-  const [writePost, { loading }] = useMutation<WriteMutation>(
-    '/api/community/write',
-  );
+  const router = useRouter();
+  const { register, handleSubmit } = useForm<WriteForm>();
+  const [writePost, { loading, data }] =
+    useMutation<WriteMutation>('/api/posts');
 
   const onValid = (data: WriteForm) => {
     if (loading) return;
     writePost(data);
   };
 
-  watch('question');
+  useEffect(() => {
+    if (data && data.ok) {
+      router.push(`/community/${data.post.id}`);
+    }
+  }, [data, router]);
 
   return (
-    <Layout canGoBack title="Write Post">
+    <Layout canGoBack title="글쓰기">
       <form onSubmit={handleSubmit(onValid)} className="p-4 space-y-4">
         <TextArea
-          register={register('question', { required: true })}
-          required
-          placeholder="Ask a question!"
+          register={register('question', { required: true, minLength: 5 })}
+          placeholder="질문을 작성 해주세요."
         />
-        <Button text="Submit" />
+        <Button text={loading ? '로딩 중' : '글 올리기'} />
       </form>
     </Layout>
   );
