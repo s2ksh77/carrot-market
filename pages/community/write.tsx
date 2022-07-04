@@ -7,6 +7,7 @@ import useMutation from '@libs/client/useMutation';
 import { Post } from '@prisma/client';
 import { useEffect } from 'react';
 import { useRouter } from 'next/router';
+import useCoords from '@libs/client/useCoords';
 
 interface WriteForm {
   question: string;
@@ -18,6 +19,7 @@ interface WriteMutation {
 }
 
 const Write: NextPage = () => {
+  const { latitude, longitude } = useCoords();
   const router = useRouter();
   const { register, handleSubmit } = useForm<WriteForm>();
   const [writePost, { loading, data }] =
@@ -25,7 +27,7 @@ const Write: NextPage = () => {
 
   const onValid = (data: WriteForm) => {
     if (loading) return;
-    writePost(data);
+    writePost({ ...data, latitude, longitude });
   };
 
   useEffect(() => {
