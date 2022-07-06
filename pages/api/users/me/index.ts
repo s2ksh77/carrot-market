@@ -7,12 +7,85 @@ async function handler(
   req: NextApiRequest,
   res: NextApiResponse<ResponseType>,
 ) {
-  const profile = await client.user.findUnique({
-    where: {
-      id: req.session.user?.id,
-    },
-  });
-  res.json({ ok: true, profile });
+  if (req.method === 'GET') {
+    const profile = await client.user.findUnique({
+      where: {
+        id: req.session.user?.id,
+      },
+    });
+    res.json({ ok: true, profile });
+  }
+  if (req.method === 'POST') {
+    const {
+      session: { user },
+      body: { email, phone, name },
+    } = req;
+
+    const userInfo = await client.user.findUnique({
+      where: {
+        id: user?.id,
+      },
+    });
+    if (email && email !== userInfo?.email) {
+      const alreadyExists = Boolean(
+        await client.user.findUnique({
+          where: {
+            email,
+          },
+          select: {
+            id: true,
+          },
+        }),
+      );
+      if (alreadyExists)
+        res.json({ ok: false, error: '이미 사용중인 이메일 입니다.' });
+      await client.user.update({
+        where: {
+          id: user?.id,
+        },
+        data: {
+          email,
+        },
+      });
+      res.json({ ok: true });
+    }
+    if (phone && phone !== userInfo?.phone) {
+      const alreadyExists = Boolean(
+        await client.user.findUnique({
+          where: {
+            phone,
+          },
+          select: {
+            id: true,
+          },
+        }),
+      );
+      if (alreadyExists)
+        res.json({ ok: false, error: '이미 사용중인 핸드폰 번호 입니다.' });
+      await client.user.update({
+        where: {
+          id: user?.id,
+        },
+        data: {
+          phone,
+        },
+      });
+      res.json({ ok: true });
+    }
+    if (name) {
+      await client.user.update({
+        where: {
+          id: user?.id,
+        },
+        data: {
+          name,
+        },
+      });
+    }
+    res.json({ ok: true });
+  }
 }
 
-export default withApiSession(withHandler({ methods: ['GET'], handler }));
+export default withApiSession(
+  withHandler({ methods: ['GET', 'POST'], handler }),
+);
