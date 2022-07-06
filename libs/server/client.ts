@@ -6,6 +6,7 @@ declare global {
 }
 
 const client = global.client || new PrismaClient();
+// { log: ['query']} 로그 확인할 때
 
 if (process.env.NODE_ENV === 'development') global.client = client;
 
