@@ -16,6 +16,20 @@ async function handler(
     where: {
       id: +id.toString(),
     },
+    include: {
+      messages: {
+        select: {
+          id: true,
+          message: true,
+          user: {
+            select: {
+              id: true,
+              avatar: true,
+            },
+          },
+        },
+      },
+    },
   });
 
   return res.json({
