@@ -7,6 +7,7 @@ import { useForm } from 'react-hook-form';
 import { useEffect, useState } from 'react';
 import useMutation from '@libs/client/useMutation';
 import { useRouter } from 'next/router';
+import { getImageSrc } from '@libs/client/utils';
 
 interface EditProfileForm {
   email?: string;
@@ -41,10 +42,7 @@ const EditProfile: NextPage = () => {
     if (user?.name) setValue('name', user?.name);
     if (user?.email) setValue('email', user?.email);
     if (user?.phone) setValue('phone', user?.phone);
-    if (user?.avatar)
-      setAvatarPreview(
-        `https://imagedelivery.net/lq0Bbd0nkd16pEanIr4F5Q/${user?.avatar}/avatar`,
-      );
+    if (user?.avatar) setAvatarPreview(getImageSrc(user?.avatar, 'avatar'));
   }, [user, setValue]);
 
   const onValid = async ({ email, phone, name, avatar }: EditProfileForm) => {
@@ -57,7 +55,6 @@ const EditProfile: NextPage = () => {
     if (avatar && avatar.length > 0 && user) {
       // cloudflare url
       const { uploadURL } = await (await fetch(`/api/files`)).json();
-      console.log(uploadURL);
 
       const form = new FormData();
       form.append('file', avatar[0], user?.id + '');
