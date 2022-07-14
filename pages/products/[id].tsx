@@ -4,11 +4,14 @@ import Layout from '@components/layout';
 import { useRouter } from 'next/router';
 import useSWR, { useSWRConfig } from 'swr';
 import Link from 'next/link';
-import { Product, User } from '@prisma/client';
+import { ChatRoom, Product, User } from '@prisma/client';
 import useMutation from '@libs/client/useMutation';
 import { cls, getImageSrc } from '@libs/client/utils';
 import useUser from '@libs/client/useUser';
 import Image from 'next/image';
+import { useForm } from 'react-hook-form';
+import { isUint16Array } from 'util/types';
+import { useEffect } from 'react';
 
 interface ProductWithUser extends Product {
   user: User;
@@ -20,13 +23,22 @@ interface ItemDetailResponse {
   isLiked: boolean;
 }
 
+interface ChatRoomResponse {
+  ok: boolean;
+  chatRoom: ChatRoom;
+}
+
 const ItemDetail: NextPage = () => {
   const { user } = useUser();
   const router = useRouter();
   const { mutate } = useSWRConfig();
+  const { handleSubmit } = useForm();
   const { data, mutate: boundMutate } = useSWR<ItemDetailResponse>(
     router.query.id ? `/api/products/${router.query?.id}` : null,
   );
+
+  const [getRoom, { loading, data: chatRoomData }] =
+    useMutation<ChatRoomResponse>('/api/chats');
 
   const [toggleFavorite] = useMutation(
     `/api/products/${router.query?.id}/favorite`,
@@ -39,6 +51,17 @@ const ItemDetail: NextPage = () => {
     // mutate('/api/users/me', (prev:any) => ({ok:!prev.ok}), false); <-- another component data cache change
     // mutate('/api/users/me') <-- just refetch
   };
+
+  const onValid = () => {
+    if (loading) return;
+    getRoom({ productId: router.query.id, id: data?.product?.user?.id });
+  };
+
+  useEffect(() => {
+    if (chatRoomData?.ok) {
+      router.push(`/chats/${chatRoomData?.chatRoom?.id}`);
+    }
+  }, [chatRoomData]);
 
   return (
     <Layout canGoBack>
@@ -82,7 +105,9 @@ const ItemDetail: NextPage = () => {
             </span>
             <p className=" my-6 text-gray-700">{data?.product?.description}</p>
             <div className="flex items-center justify-between space-x-2">
-              <Button large text="채팅으로 거래하기" />
+              <form className="w-full" onSubmit={handleSubmit(onValid)}>
+                <Button large text="채팅으로 거래하기" />
+              </form>
               <button
                 onClick={onFavoriteClick}
                 className={cls(

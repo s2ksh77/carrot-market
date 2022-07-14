@@ -32,6 +32,7 @@ model User {
   purchases       Purchase[]
   streams         Stream[]
   messages        Message[]
+  chatRooms       ChatRoom[]
 }
 
 model Token {
@@ -56,6 +57,7 @@ model Product {
   favorites   Favorite[]
   sales       Sale[]
   purchases   Purchase[]
+  chats       ChatRoom[]
 }
 
 model Post {
@@ -151,14 +153,27 @@ model Stream {
 }
 
 model Message {
-  id        Int      @id @default(autoincrement())
-  message   String   @db.MediumText
-  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  id         Int      @id @default(autoincrement())
+  message    String   @db.MediumText
+  user       User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId     Int
+  chatRoom   ChatRoom @relation(fields: [chatroomId], references: [id], onDelete: Cascade)
+  chatroomId Int
+  stream     Stream?  @relation(fields: [streamId], references: [id], onDelete: Cascade)
+  streamId   Int?
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+}
+
+model ChatRoom {
+  id        Int       @id @default(autoincrement())
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+  user      User      @relation(fields: [userId], references: [id], onDelete: Cascade)
   userId    Int
-  stream    Stream   @relation(fields: [streamId], references: [id], onDelete: Cascade)
-  streamId  Int
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  product   Product?  @relation(fields: [productId], references: [id], onDelete: Cascade)
+  productId Int
+  messages  Message[]
 }
 
 // 같은 구조를 종류별로 스키마 만들 때

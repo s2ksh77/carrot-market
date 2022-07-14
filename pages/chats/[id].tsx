@@ -1,17 +1,89 @@
 import type { NextPage } from 'next';
-import Message from '@components/message';
+import CMessage from '@components/message';
 import Layout from '@components/layout';
+import useSWR from 'swr';
+import { useRouter } from 'next/router';
+import { Message } from '@prisma/client';
+import { useForm } from 'react-hook-form';
+import useUser from '@libs/client/useUser';
+import useMutation from '@libs/client/useMutation';
+import { getAvatar } from '@libs/client/utils';
+
+interface MessageForm {
+  message: string;
+}
+
+interface MessagesResponse {
+  ok: boolean;
+  roomInfo: Message;
+}
 
 const ChatDetail: NextPage = () => {
+  const { user } = useUser();
+  const router = useRouter();
+  const { data, mutate } = useSWR<MessagesResponse>(
+    router?.query?.id ? `/api/chats/${router.query.id}` : null,
+  );
+  const { register, handleSubmit, reset } = useForm<MessageForm>();
+
+  const [sendMessage, { loading, data: sendMessageData }] = useMutation<>(
+    `/api/chats/${router.query.id}/messages`,
+  );
+
+  const onValid = (form: MessageForm) => {
+    if (loading) return;
+    if (form.message === '') return;
+    reset();
+    mutate(
+      prev =>
+        prev &&
+        ({
+          ...prev,
+          roomInfo: {
+            ...prev.roomInfo,
+            messages: [
+              ...prev?.roomInfo?.messages,
+              {
+                id: Date.now(),
+                message: form.message,
+                userId: user?.id,
+                user: {
+                  ...user,
+                },
+              },
+            ],
+          },
+        } as any),
+      false,
+    );
+    sendMessage({ message: form.message, chatRoomId: router.query.id });
+  };
+
+  const getRoomName = () => {
+    const filterData = data?.roomInfo?.messages.filter(
+      message => message.userId !== user?.id,
+    )[0];
+    return filterData?.user?.name;
+  };
+
   return (
-    <Layout canGoBack title="Steve">
+    <Layout canGoBack title={getRoomName(data?.roomInfo, user?.id)}>
       <div className="py-10 pb-16 px-4 space-y-4">
-        <Message message="Hi how much are you selling them for?" />
-        <Message message="I want ￦20,000" reversed />
-        <Message message="미쳤어" />
-        <form className="fixed py-2 bg-white  bottom-0 inset-x-0">
+        {data?.roomInfo?.messages?.map(message => (
+          <CMessage
+            key={message.id}
+            message={message.message}
+            userId={message.user.avatar}
+            reversed={message.userId === user?.id}
+          />
+        ))}
+        <form
+          onSubmit={handleSubmit(onValid)}
+          className="fixed py-2 bg-white  bottom-0 inset-x-0"
+        >
           <div className="flex relative max-w-md items-center  w-full mx-auto">
             <input
+              {...register('message')}
               type="text"
               className="shadow-sm rounded-full w-full border-gray-300 focus:ring-orange-500 focus:outline-none pr-12 focus:border-orange-500"
             />
