@@ -32,6 +32,12 @@ async function handler(
     },
   });
 
+  const isOwner = stream?.userId === user?.id;
+  if (stream && !isOwner) {
+    stream.cloudflareKey = 'xxxxx';
+    stream.cloudflareUrl = 'xxxxx';
+  }
+
   return res.json({
     ok: true,
     stream,
