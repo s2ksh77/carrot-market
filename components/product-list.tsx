@@ -28,6 +28,7 @@ export default function ProductList({ kind }: ProductListProps) {
           price={item.product.price}
           comments={1}
           hearts={item.product._count.favorites}
+          image={item.product.image}
         />
       ))}
     </>
