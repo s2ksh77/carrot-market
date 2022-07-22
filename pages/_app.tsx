@@ -15,19 +15,6 @@ function MyApp({ Component, pageProps }: AppProps) {
         src="https://developers.kakao.com/sdk/js/kakao.js"
         strategy="lazyOnload"
       />
-      <Script
-        src="https://connect.facebook.net/en_US/sdk.js"
-        onLoad={() => {
-          window.fbAsyncInit = function () {
-            FB.init({
-              appId: 'your-app-id',
-              autoLogAppEvents: true,
-              xfbml: true,
-              version: 'v13.0',
-            });
-          };
-        }}
-      />
     </SWRConfig>
   );
 }
