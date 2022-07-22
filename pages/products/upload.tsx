@@ -28,20 +28,25 @@ const Upload: NextPage = () => {
   const [uploadProduct, { loading, data, error }] =
     useMutation<UploadProductMutation>('/api/products');
 
-  const onValid = async ({ name, price, description, photo }: UploadProductForm) => {
+  const onValid = async ({
+    name,
+    price,
+    description,
+    photo,
+  }: UploadProductForm) => {
     if (loading) return;
     if (photo && photo.length > 0) {
-      const { uploadURL } = await(await fetch(`/api/files`)).json();
+      const { uploadURL } = await (await fetch(`/api/files`)).json();
 
       const form = new FormData();
       form.append('file', photo[0], name);
       const {
         result: { id },
-      } = await(
+      } = await (
         await fetch(uploadURL, {
           method: 'POST',
           body: form,
-        }),
+        })
       ).json();
 
       uploadProduct({ name, price, description, photoId: id });

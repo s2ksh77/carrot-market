@@ -18,6 +18,7 @@ async function handler(
         _count: {
           select: {
             favorites: true,
+            chats: true,
           },
         },
       },

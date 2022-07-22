@@ -9,13 +9,13 @@ async function handler(
 ) {
   const {
     query: { id },
-    body: { message },
+    body,
     session: { user },
   } = req;
 
   const newMessage = await client.message.create({
     data: {
-      message,
+      message: body.message,
       stream: {
         connect: {
           id: +id.toString(),

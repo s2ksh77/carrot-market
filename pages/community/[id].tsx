@@ -176,7 +176,7 @@ const CommunityPostDetail: NextPage = () => {
                   {answer.user.name}
                 </span>
                 <span className="text-xs text-gray-500 block ">
-                  {answer.createdAt}
+                  {answer.createdAt.toUTCString()}
                 </span>
                 <p className="text-gray-700 mt-2">{answer.answer}</p>
               </div>

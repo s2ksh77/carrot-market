@@ -4,7 +4,7 @@ import Image from 'next/image';
 interface MessageProps {
   message: string;
   reversed?: boolean;
-  userId?: string;
+  userId?: string | null;
 }
 
 export default function Message({ message, userId, reversed }: MessageProps) {

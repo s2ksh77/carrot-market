@@ -40,7 +40,7 @@ const Stream: NextPage = () => {
   // { nextInterval로 api 확인을 계속 요청을 해야 함.}
 
   const { register, handleSubmit, reset } = useForm<MessageForm>();
-  const [sendMessage, { loading, data: sendMessageData }] = useMutation<>(
+  const [sendMessage, { loading, data: sendMessageData }] = useMutation(
     `/api/streams/${router.query.id}/messages`,
   );
 

@@ -3,19 +3,27 @@ import CMessage from '@components/message';
 import Layout from '@components/layout';
 import useSWR from 'swr';
 import { useRouter } from 'next/router';
-import { Message } from '@prisma/client';
+import { Message, User } from '@prisma/client';
 import { useForm } from 'react-hook-form';
 import useUser from '@libs/client/useUser';
 import useMutation from '@libs/client/useMutation';
-import { getAvatar } from '@libs/client/utils';
+import { getRoomName } from '@libs/client/utils';
 
 interface MessageForm {
   message: string;
 }
 
+interface MessageWithUser extends Message {
+  user: User;
+}
+
+interface Messages extends Message {
+  messages: MessageWithUser[];
+}
+
 interface MessagesResponse {
   ok: boolean;
-  roomInfo: Message;
+  roomInfo: Messages;
 }
 
 const ChatDetail: NextPage = () => {
@@ -26,7 +34,7 @@ const ChatDetail: NextPage = () => {
   );
   const { register, handleSubmit, reset } = useForm<MessageForm>();
 
-  const [sendMessage, { loading, data: sendMessageData }] = useMutation<>(
+  const [sendMessage, { loading, data: sendMessageData }] = useMutation(
     `/api/chats/${router.query.id}/messages`,
   );
 
@@ -59,21 +67,14 @@ const ChatDetail: NextPage = () => {
     sendMessage({ message: form.message, chatRoomId: router.query.id });
   };
 
-  const getRoomName = () => {
-    const filterData = data?.roomInfo?.messages.filter(
-      message => message.userId !== user?.id,
-    )[0];
-    return filterData?.user?.name;
-  };
-
   return (
-    <Layout canGoBack title={getRoomName(data?.roomInfo, user?.id)}>
+    <Layout canGoBack title={getRoomName(data?.roomInfo, user?.id.toString())}>
       <div className="py-10 pb-16 px-4 space-y-4">
         {data?.roomInfo?.messages?.map(message => (
           <CMessage
             key={message.id}
             message={message.message}
-            userId={message.user.avatar}
+            userId={message.user?.avatar}
             reversed={message.userId === user?.id}
           />
         ))}

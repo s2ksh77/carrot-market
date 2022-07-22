@@ -10,6 +10,7 @@ import { useEffect } from 'react';
 import { useRouter } from 'next/router';
 
 interface CreateForm {
+  id: string;
   name: string;
   price: string;
   description: string;
@@ -33,7 +34,7 @@ const Create: NextPage = () => {
 
   useEffect(() => {
     if (data && data.ok) {
-      router.push(`/streams/${data.id}`);
+      router.push(`/streams/${data?.stream.id}`);
     }
   }, [data]);
 
