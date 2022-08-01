@@ -79,7 +79,7 @@ const Enter: NextPage = () => {
 
   useEffect(() => {
     if (data?.ok) {
-      alert(`인증번호는 ${data.token} 입니다.`);
+      alert(`인증번호는 ${data.token.payload} 입니다.`);
     }
   }, [data]);
 
