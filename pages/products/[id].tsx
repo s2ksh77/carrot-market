@@ -1,4 +1,4 @@
-import type { NextPage } from 'next';
+import type { GetStaticPaths, GetStaticProps, NextPage } from 'next';
 import Button from '@components/button';
 import Layout from '@components/layout';
 import { useRouter } from 'next/router';
@@ -12,6 +12,7 @@ import Image from 'next/image';
 import { useForm } from 'react-hook-form';
 import { isUint16Array } from 'util/types';
 import { useEffect } from 'react';
+import client from '@libs/server/client';
 
 interface ProductWithUser extends Product {
   user: User;
@@ -28,7 +29,11 @@ interface ChatRoomResponse {
   chatRoom: ChatRoom;
 }
 
-const ItemDetail: NextPage = () => {
+const ItemDetail: NextPage<ItemDetailResponse> = ({
+  product,
+  relatedProducts,
+  isLiked,
+}) => {
   const { user } = useUser();
   const router = useRouter();
   const { mutate } = useSWRConfig();
@@ -47,14 +52,14 @@ const ItemDetail: NextPage = () => {
   const onFavoriteClick = () => {
     toggleFavorite({});
     if (!data) return;
-    boundMutate({ ...data, isLiked: !data?.isLiked }, false);
+    boundMutate({ ...data, isLiked: !isLiked }, false);
     // mutate('/api/users/me', (prev:any) => ({ok:!prev.ok}), false); <-- another component data cache change
     // mutate('/api/users/me') <-- just refetch
   };
 
   const onValid = () => {
     if (loading) return;
-    getRoom({ productId: router.query.id, id: data?.product?.user?.id });
+    getRoom({ productId: router.query.id, id: product?.user?.id });
   };
 
   useEffect(() => {
@@ -67,10 +72,10 @@ const ItemDetail: NextPage = () => {
     <Layout canGoBack>
       <div className="px-4  py-4">
         <div className="mb-8">
-          {data?.product?.image ? (
+          {product?.image ? (
             <div className="relative pb-80">
               <Image
-                src={getImageSrc(data?.product?.image, 'public')}
+                src={getImageSrc(product?.image, 'public')}
                 className="object-cover bg-slate-300"
                 layout="fill"
               />
@@ -80,16 +85,16 @@ const ItemDetail: NextPage = () => {
           )}
           <div className="flex cursor-pointer py-3 border-t border-b items-center space-x-3">
             <Image
-              src={getImageSrc(data?.product?.user?.avatar, 'avatar')}
+              src={getImageSrc(product?.user?.avatar, 'avatar')}
               width={48}
               height={48}
               className="w-12 h-12 rounded-full bg-slate-300"
             />
             <div>
               <p className="text-sm font-medium text-gray-700">
-                {data?.product?.user?.name}
+                {product?.user?.name}
               </p>
-              <Link href={`/users/profiles/${data?.product?.user?.id}`}>
+              <Link href={`/users/profiles/${product?.user?.id}`}>
                 <a className="text-xs font-medium text-gray-500">
                   프로필 &rarr;
                 </a>
@@ -98,12 +103,12 @@ const ItemDetail: NextPage = () => {
           </div>
           <div className="mt-5">
             <h1 className="text-3xl font-bold text-gray-900">
-              {data?.product?.name}
+              {product?.name}
             </h1>
             <span className="text-2xl block mt-3 text-gray-900">
-              \ {data?.product?.price}
+              \ {product?.price}
             </span>
-            <p className=" my-6 text-gray-700">{data?.product?.description}</p>
+            <p className=" my-6 text-gray-700">{product?.description}</p>
             <div className="flex items-center justify-between space-x-2">
               <form className="w-full" onSubmit={handleSubmit(onValid)}>
                 <Button large text="채팅으로 거래하기" />
@@ -112,12 +117,12 @@ const ItemDetail: NextPage = () => {
                 onClick={onFavoriteClick}
                 className={cls(
                   'p-3 rounded-md flex items-center justify-center ',
-                  data?.isLiked
+                  isLiked
                     ? 'text-red-500 hover:bg-red-100 hover:text-red-600'
                     : 'text-gray-400 hover:bg-gray-100 hover:text-gray-500',
                 )}
               >
-                {data?.isLiked ? (
+                {isLiked ? (
                   <svg
                     xmlns="http://www.w3.org/2000/svg"
                     className="h-6 w-6"
@@ -154,7 +159,7 @@ const ItemDetail: NextPage = () => {
         <div>
           <h2 className="text-2xl font-bold text-gray-900">비슷한 상품</h2>
           <div className=" mt-6 grid grid-cols-2 gap-4">
-            {data?.relatedProducts?.map(product => (
+            {relatedProducts?.map(product => (
               <Link href={`/api/product/${product.id}`}>
                 <a>
                   <div key={product.id}>
@@ -172,6 +177,71 @@ const ItemDetail: NextPage = () => {
       </div>
     </Layout>
   );
+};
+
+// paths를 빈 array로 만들고 fallback을 blocking으로 해두면 미리 html을 안만들어 둠.
+// 대신 사용자가 getStaticProps나 getStaticPaths로 만들어진 페이지에 접근하게 되면,
+// 해당 변수로 들어온 [id] 의 페이지의 html을 즉시 만들어 줌.
+// path안에 몇개의 파일들이 있을지 모르기 때문에 사용하는 방법 ( 변수가 얼마나 많을지 모르기 때문에 )
+
+// fallback: false 일 경우는 빌드 시점에만 만들고 없는데 접근하게 되면 404 뱉음
+// fallback: true 최초 요청 때 리퀘스트를 보내는 시간동안 어떤걸 볼 수 있게 해 줌. ( 스켈레톤 같은거다~~~~~ )
+// blocking 하고 비슷하게 최초 요청 때 새로 HTML을 만들텐데 TRUE는 UI를 보여 줌
+export const getStaticPaths: GetStaticPaths = () => {
+  return {
+    paths: [],
+    fallback: 'blocking',
+  };
+};
+
+export const getStaticProps: GetStaticProps = async ctx => {
+  if (!ctx?.params?.id) {
+    return {
+      props: {},
+    };
+  }
+
+  const product = await client.product.findUnique({
+    where: {
+      id: +ctx?.params?.id.toString(),
+    },
+    include: {
+      user: {
+        select: {
+          id: true,
+          name: true,
+          avatar: true,
+        },
+      },
+    },
+  });
+
+  const isLiked = false;
+
+  const terms = product?.name.split(' ').map(word => ({
+    name: {
+      contains: word,
+    },
+  }));
+
+  const relatedProducts = await client.product.findMany({
+    where: {
+      OR: terms,
+      AND: {
+        id: {
+          not: product?.id,
+        },
+      },
+    },
+  });
+
+  return {
+    props: {
+      product: JSON.parse(JSON.stringify(product)),
+      isLiked: JSON.parse(JSON.stringify(isLiked)),
+      relatedProducts: JSON.parse(JSON.stringify(relatedProducts)),
+    },
+  };
 };
 
 export default ItemDetail;
