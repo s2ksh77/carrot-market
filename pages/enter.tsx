@@ -6,7 +6,7 @@ import Input from '@components/input';
 import useMutation from '@libs/client/useMutation';
 import { cls } from '@libs/client/utils';
 import { useRouter } from 'next/router';
-import dynamic from 'next/dynamic';
+import { Token } from '@prisma/client';
 
 // for lazy loading
 // const Bs = dynamic(
@@ -30,15 +30,20 @@ interface TokenForm {
   token: string;
 }
 
-interface MutationResult {
+interface EnterMutation {
+  ok: boolean;
+  token: Token;
+}
+
+interface ConfirmMutation {
   ok: boolean;
 }
 
 const Enter: NextPage = () => {
   const [mutation, { loading, data, error }] =
-    useMutation<MutationResult>('/api/users/enter');
+    useMutation<EnterMutation>('/api/users/enter');
   const [confirm, { loading: tokenLoading, data: tokenData }] =
-    useMutation<MutationResult>('/api/users/confirm');
+    useMutation<ConfirmMutation>('/api/users/confirm');
   const { register, handleSubmit, reset } = useForm<EnterForm>();
   const { register: tokenRegister, handleSubmit: tokenHandleSubmit } =
     useForm<TokenForm>();
@@ -71,6 +76,12 @@ const Enter: NextPage = () => {
       }, 100);
     }
   }, [tokenData]);
+
+  useEffect(() => {
+    if (data?.ok) {
+      alert(`인증번호는 ${data.token} 입니다.`);
+    }
+  }, [data]);
 
   return (
     <div className="mt-16 px-4">
